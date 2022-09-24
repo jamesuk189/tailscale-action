@@ -1,0 +1,16 @@
+{
+  "name": "tailscale-action",
+  "private": true,
+  "scripts": {
+    "build": "rm -dr dist && ncc build index.js --minify -o dist/main --license licenses.txt && ncc build cleanup.js --minify -o dist/cleanup --license licenses.txt"
+  },
+  "dependencies": {
+    "@actions/core": "^1.9.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^5.0.3",
+    "@actions/tool-cache": "^2.0.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.34.0"
+  }
+}

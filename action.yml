@@ -1,0 +1,22 @@
+name: 'Connect to Tailscale Tailnet'
+description: 'Connect the GitHub Action Runner to a Tailscale Tailnet'
+inputs:
+  authkey: 
+    description: 'The Tailscale authentication key'
+    required: true
+  version:
+    description: 'The Tailscale version to use'
+    required: true
+    default: '1.30.2'
+  args:
+    description: 'Additional arguments to pass to `tailscale up`'
+    required: false
+    default: ''
+  hostname:
+    description: 'A custom hostname to use'
+    required: false
+    default: ''
+runs:
+  using: 'node16'
+  main: 'dist/main/index.js'
+  post: 'dist/cleanup/index.js'
