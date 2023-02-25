@@ -125,6 +125,8 @@ async function runMacOS() {
 
     await exec.exec(`sudo mv "${tempDirectory}/Tailscale.app" /Applications/Tailscale.app`);
 
+    await exec.exec('/Applications/Tailscale.app/Contents/MacOS/Tailscaled start');
+
     core.endGroup();
     core.startGroup('Starting Tailscale');
 
