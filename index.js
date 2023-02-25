@@ -6,9 +6,12 @@ const os = require('os');
 async function run() {
     try {
         const isWindows = process.platform === 'win32';
+        const isMacOS = process.platform === 'darwin';
 
         if (isWindows) {
             await runWindows();
+        } else if (isMacOS) {
+            await runMacOS();
         } else {
             await runLinux();
         }
@@ -101,6 +104,43 @@ async function runWindows() {
         tsArgs.push(args);
     }
     await exec.exec('tailscale', tsArgs);
+
+    core.endGroup();
+}
+
+async function runMacOS() {
+    core.startGroup('Downloading MacOS Tailscale package');
+
+    const version = core.getInput('version', { required: true });
+    const filename = `Tailscale-${version}-macos.zip`;
+    const tempDirectory = process.env['RUNNER_TEMP'];
+    const installerPath = `${tempDirectory}\\tailscale.zip`;
+
+    const path = await downloadInstaller(filename, installerPath, version);
+
+    core.endGroup();
+    core.startGroup('Installing Tailscale');
+
+    await tc.extractZip(path, tempDirectory);
+
+    await exec.exec(`sudo mv "${tempDirectory}/Tailscale.app" /Applications/Tailscale.app`);
+
+    core.endGroup();
+    core.startGroup('Starting Tailscale');
+
+    const authkey = core.getInput('authkey', { required: true });
+    const args = core.getInput('args');
+    let hostname = core.getInput('hostname');
+
+    if (hostname === '') {
+        hostname = `github-${os.hostname()}`;
+    }
+
+    const tsArgs = ['up', '--authkey', `${authkey}`, '--hostname', `${hostname}`, '--accept-routes'];
+    if (args) {
+        tsArgs.push(args);
+    }
+    await exec.exec('/Applications/Tailscale.app/Contents/MacOS/Tailscale', tsArgs);
 
     core.endGroup();
 }

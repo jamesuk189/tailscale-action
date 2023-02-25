@@ -5,9 +5,12 @@ const fs = require('fs');
 async function run() {
     try {
         const isWindows = process.platform === 'win32';
+        const isMacOS = process.platform === 'darwin';
 
         if (isWindows) {
             await runWindows();
+        } else if (isMacOS) {
+            await runMacOS();
         } else {
             await runLinux();
         }
@@ -45,6 +48,15 @@ async function runWindows() {
     await exec.exec('pwsh -Command ". {Get-ChildItem C:\\ProgramData\\Tailscale\\Logs *.txt | Get-Content}"');
 
     core.endGroup();
+}
+
+async function runMacOS() {
+
+    if (!fs.existsSync('/Applications/Tailscale.app')) {
+        return;
+    }
+
+    await exec.exec('/Applications/Tailscale.app/Contents/MacOS/Tailscale', ['logout']);
 }
 
 run();
